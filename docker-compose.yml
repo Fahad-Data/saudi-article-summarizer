@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # Backend Service (Flask API)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: saudi_article_summarizer_backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - ./backend/logs:/app/logs
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend Service (Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: saudi_article_summarizer_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis Service (للـ Caching - اختياري)
+  redis:
+    image: redis:7-alpine
+    container_name: saudi_article_summarizer_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  app-network:
+    driver: bridge
+    name: saudi_summarizer_network
+
+volumes:
+  redis_data:
+    name: saudi_summarizer_redis_data
