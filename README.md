@@ -1,4 +1,4 @@
-# 🇸🇦 Saudi Article Summarizer
+# Saudi Article Summarizer
 
 > ملخص الأخبار السعودي بالذكاء الاصطناعي مع ترجمة تلقائية
 
@@ -347,5 +347,6 @@ docker stack deploy -c docker-compose.yml saudi-summarizer
 - فحص logs للأخطاء
 
 ---
+
 
 **تم إنشاؤه بواسطة:** فهد العمودي 
